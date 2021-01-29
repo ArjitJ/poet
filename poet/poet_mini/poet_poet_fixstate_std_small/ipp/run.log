@@ -1,0 +1,56 @@
+INFO:__main__:Namespace(adjust_interval=4, batch_size=1, batches_per_chunk=48, checkpointing=False, envs=['lava', 'obstacle', 'box_to_ball', 'door', 'wall'], eval_batch_size=1, eval_batches_per_step=5, init='random', l2_coeff=0.01, learning_rate=0.01, log_file='poet_mini/poet_poet_fixstate_std_small/logs', lr_decay=0.9999, lr_limit=0.001, master_seed=24582922, max_num_envs=15, mc_lower=-20, mc_upper=70, n_iterations=50000, noise_decay=0.999, noise_limit=0.01, noise_std=0.1, normalize_grads_by_noise_std=True, num_workers=10, propose_with_adam=True, repro_threshold=-10.0, returns_normalization='centered_ranks', start_from=None, steps_before_transfer=25, stochastic=True)
+INFO:poet_distributed.noise:Sampling 250000000 random numbers with seed 42
+INFO:poet_distributed.noise:Sampled 1000000000 bytes
+INFO:poet_distributed.logger:Creating data logger at poet_mini/poet_poet_fixstate_std_small/logs/logs.default_env.log
+INFO:poet_distributed.es:Optimizer default_env created!
+INFO:poet_distributed.noise:Sampling 250000000 random numbers with seed 42
+INFO:poet_distributed.noise:Sampling 250000000 random numbers with seed 42
+INFO:poet_distributed.noise:Sampling 250000000 random numbers with seed 42
+INFO:poet_distributed.noise:Sampling 250000000 random numbers with seed 42
+INFO:poet_distributed.noise:Sampling 250000000 random numbers with seed 42
+INFO:poet_distributed.noise:Sampling 250000000 random numbers with seed 42
+INFO:poet_distributed.noise:Sampling 250000000 random numbers with seed 42
+INFO:poet_distributed.noise:Sampling 250000000 random numbers with seed 42
+INFO:poet_distributed.noise:Sampling 250000000 random numbers with seed 42
+INFO:poet_distributed.noise:Sampling 250000000 random numbers with seed 42
+INFO:poet_distributed.noise:Sampled 1000000000 bytes
+INFO:poet_distributed.noise:Sampled 1000000000 bytes
+INFO:poet_distributed.noise:Sampled 1000000000 bytes
+INFO:poet_distributed.noise:Sampled 1000000000 bytes
+INFO:poet_distributed.noise:Sampled 1000000000 bytes
+INFO:poet_distributed.noise:Sampled 1000000000 bytes
+INFO:poet_distributed.noise:Sampled 1000000000 bytes
+INFO:poet_distributed.noise:Sampled 1000000000 bytes
+INFO:poet_distributed.noise:Sampled 1000000000 bytes
+INFO:poet_distributed.noise:Sampled 1000000000 bytes
+INFO:poet_distributed.poet_algo:Iter=0 Optimizer default_env theta_mean -11.389999999999992 best po -5.0 iteration spent 0
+INFO:poet_distributed.logger:{'accept_theta_in_default_env': 'self',
+ 'episodes_so_far_default_env': 48,
+ 'episodes_this_step_default_env': 48,
+ 'eval_len_mean_default_env': 161.0,
+ 'eval_len_std_default_env': 0.0,
+ 'eval_n_episodes_default_env': 5,
+ 'eval_returns_mean_best_in_default_env': None,
+ 'eval_returns_mean_best_with_ckpt_in_default_env': None,
+ 'eval_returns_mean_default_env': -11.389999999999992,
+ 'eval_returns_mean_proposal_from_others_in_default_env': None,
+ 'eval_returns_mean_theta_from_others_in_default_env': None,
+ 'eval_returns_median_default_env': -11.449999999999989,
+ 'eval_returns_std_default_env': 0.6522269543648161,
+ 'grad_norm_default_env': 2228.965087890625,
+ 'iteration': 0,
+ 'learning_rate_default_env': 0.009999000000000001,
+ 'noise_std_default_env': 0.0999,
+ 'po_len_mean_default_env': 156.03125,
+ 'po_len_std_default_env': 27.37869195994396,
+ 'po_returns_max_default_env': -5.0,
+ 'po_returns_mean_default_env': -11.115624999999994,
+ 'po_returns_median_default_env': -11.29999999999999,
+ 'po_returns_min_default_env': -16.599999999999994,
+ 'po_returns_std_default_env': 1.2713860649077695,
+ 'theta_norm_default_env': 1.1862652859553604,
+ 'time_elapsed_so_far': 1566.6357960700989,
+ 'time_elapsed_this_step_default_env': 1566.6333210468292,
+ 'timesteps_so_far_default_env': 14979,
+ 'timesteps_this_step_default_env': 14979,
+ 'update_ratio_default_env': 1.0109779487715287}
