@@ -2,6 +2,10 @@ from ..core import Niche
 from .model import Model, simulate
 from .env import minigridhard_custom, Env_config
 from collections import OrderedDict
+import logging
+
+
+logger = logging.getLogger(__name__)
 DEFAULT_ENV = Env_config(
         name='default_env',
         lava_prob=[0., 0.1],
@@ -66,7 +70,8 @@ class MiniGridNiche(Niche):
             seed = random_state.randint(1000000)
         else:
             seed = self.seed
-        #print('self.env_configs.values()', self.env_configs.values())
+        # logger.info("Beginning rollout")
+        # print('self.env_configs.values()0', self.env_configs.values())
         for env_config in self.env_configs.values():
             returns, lengths = simulate(
                 self.model, seed=seed, train_mode=not eval, num_episode=1, env_config_this_sim=env_config)

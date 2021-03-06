@@ -17,11 +17,11 @@ from poet_distributed.niches.box2d.env import Env_config
 from poet_distributed.niches.minigrid.env import Env_config as MG_Env_config
 import numpy as np
 
+
 def name_env_config(ground_roughness,
                     pit_gap,
                     stump_width, stump_height, stump_float,
                     stair_width, stair_height, stair_steps):
-
     env_name = 'r' + str(ground_roughness)
     if pit_gap:
         env_name += '.p' + str(pit_gap[0]) + '_' + str(pit_gap[1])
@@ -31,6 +31,7 @@ def name_env_config(ground_roughness,
         env_name += '.s' + str(stair_steps[0]) + '_' + str(stair_height[1])
 
     return env_name
+
 
 class Reproducer:
     def __init__(self, args):
@@ -65,24 +66,23 @@ class Reproducer:
             num_choices = len(choices)
             if num_choices > 0:
                 idx = self.rs.randint(num_choices)
-                #print(choices)
-                #print("we pick ", choices[idx])
+                # print(choices)
+                # print("we pick ", choices[idx])
                 arr[0] = choices[idx][0]
                 arr[1] = choices[idx][1]
 
         return arr
 
-
     def mutate(self, parent):
 
-        ground_roughness=parent.ground_roughness
+        ground_roughness = parent.ground_roughness
         pit_gap = list(parent.pit_gap)
-        stump_width=list(parent.stump_width)
-        stump_height=list(parent.stump_height)
-        stump_float=list(parent.stump_float)
-        stair_height=list(parent.stair_height)
-        stair_width=list(parent.stair_width)
-        stair_steps=list(parent.stair_steps)
+        stump_width = list(parent.stump_width)
+        stump_height = list(parent.stump_height)
+        stump_float = list(parent.stump_float)
+        stair_height = list(parent.stair_height)
+        stair_width = list(parent.stair_width)
+        stair_steps = list(parent.stair_steps)
 
         if 'roughness' in self.categories:
             ground_roughness = np.round(ground_roughness + self.rs.uniform(-0.6, 0.6), 1)
@@ -111,11 +111,12 @@ class Reproducer:
             stump_float = self.populate_array(stump_float, [0, 1], enforce=True)
 
         if 'stair' in self.categories:
-            sub_category = '_h' #self.rs.choice(['_s', '_h'])
+            sub_category = '_h'  # self.rs.choice(['_s', '_h'])
             enforce = (len(stair_steps) == 0)
 
             if enforce or sub_category == '_s':
-                stair_steps = self.populate_array(stair_steps, [1, 2], interval=1, increment=1, enforce=enforce, max_value=[9, 9])
+                stair_steps = self.populate_array(stair_steps, [1, 2], interval=1, increment=1, enforce=enforce,
+                                                  max_value=[9, 9])
                 stair_steps = [int(i) for i in stair_steps]
 
             if enforce or sub_category == '_h':
@@ -142,16 +143,16 @@ class Reproducer:
 
         return child
 
-#GDD: Need to create a class with a new mutate function that fits our parameters
+
+# GDD: Need to create a class with a new mutate function that fits our parameters
 def mg_name_env_config(lava, obs, btb, door, wall):
-    env_name = "l"+str(lava)+"_obs"+str(obs)+"_btb"+str(btb)+"_d"+str(door)+"_w"+str(wall)
+    env_name = "l" + str(lava) + "_obs" + str(obs) + "_btb" + str(btb) + "_d" + str(door) + "_w" + str(wall)
     return env_name
 
 
 class MG_Reproducer(Reproducer):
-    def __init__(self,args):
+    def __init__(self, args):
         super().__init__(args)
-
 
     # Arr will hold a list of a few different Env_Configs, just choose one of them
     def pick(self, arr):
@@ -167,7 +168,7 @@ class MG_Reproducer(Reproducer):
         if 'lava' in self.categories:
             lava_prob = self.populate_array(lava_prob, [0.0, 0.1], increment=0.05, max_value=[0.4, 0.4])
         if 'obstacle' in self.categories:
-            obstacle_lvl = self.populate_array(obstacle_lvl, [0,1], increment=0.33, max_value=[5,5])
+            obstacle_lvl = self.populate_array(obstacle_lvl, [0, 1], increment=0.33, max_value=[5, 5])
 
         if 'box_to_ball' in self.categories:
             btb_prob = self.populate_array(btb_prob, [0.0, 0.3], increment=0.05, max_value=[1.0, 1.0])

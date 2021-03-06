@@ -3,15 +3,16 @@ from collections import namedtuple
 from .minigrid_custom import MiniGridCustom, Env_config  # noqa
 from gym_minigrid.wrappers import ImgObsWrapper
 
-def make_env(env_name, seed, render_mode=True, env_config=None):
+
+def make_env(env_name, seed, render_mode=False, env_config=None):
     if env_name.startswith("MiniGridCustom"):
         assert env_config is not None
         env = MiniGridCustom(env_config)
     else:
         # env = gym.make(env_name)
         raise Exception('Got env_name {}'.format(env_name))
-#     if render_mode and not env_name.startswith("Roboschool"):
-#         env.render("human")
+    #     if render_mode and not env_name.startswith("Roboschool"):
+    #         env.render("human")
     if (seed >= 0):
         env.seed(seed)
     env = ImgObsWrapper(env)
@@ -31,11 +32,11 @@ Game = namedtuple('Game', ['env_name', 'time_factor', 'input_size',
                            'output_noise'])
 
 minigridhard_custom = Game(env_name='MiniGridCustom',
-                        input_size=147,
-                        output_size=6,
-                        time_factor=0,
-                        layers=[32, 32],
-                        activation='softmax',
-                        noise_bias=0.0,
-                        output_noise=[False, False, False],
-                        )
+                           input_size=147,
+                           output_size=6,
+                           time_factor=0,
+                           layers=[16, 16],
+                           activation='softmax',
+                           noise_bias=0.0,
+                           output_noise=[False, False, False],
+                           )

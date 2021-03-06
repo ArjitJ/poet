@@ -65,19 +65,23 @@ def initialize_master_fiber():
     global noise
     from .noise_module import noise
 
+
 def initialize_worker_fiber(arg_thetas, arg_niches):
     global noise, thetas, niches
     from .noise_module import noise
     thetas = arg_thetas
     niches = arg_niches
 
+
 @functools.lru_cache(maxsize=1000)
 def fiber_get_theta(iteration, optim_id):
     return thetas[optim_id]
 
+
 @functools.lru_cache(maxsize=1000)
 def fiber_get_niche(iteration, optim_id):
     return niches[optim_id]
+
 
 def run_eval_batch_fiber(iteration, optim_id, batch_size, rs_seed):
     global noise, niches, thetas
@@ -85,12 +89,11 @@ def run_eval_batch_fiber(iteration, optim_id, batch_size, rs_seed):
     niche = fiber_get_niche(iteration, optim_id)
     theta = fiber_get_theta(iteration, optim_id)
 
-
     returns, lengths = niche.rollout_batch((theta for i in range(batch_size)),
                                            batch_size, random_state, eval=True)
 
-
     return EvalResult(returns=returns, lengths=lengths)
+
 
 def run_po_batch_fiber(iteration, optim_id, batch_size, rs_seed, noise_std):
     global noise, niches, thetas
@@ -103,11 +106,12 @@ def run_po_batch_fiber(iteration, optim_id, batch_size, rs_seed, noise_std):
 
     returns = np.zeros((batch_size, 2))
     lengths = np.zeros((batch_size, 2), dtype='int')
-
+    # logger.info("Beginning rollout for theta - std_dev * Noise")
     returns[:, 0], lengths[:, 0] = niche.rollout_batch(
         (theta + noise_std * noise.get(noise_idx, len(theta))
          for noise_idx in noise_inds), batch_size, random_state)
 
+    # logger.info("Beginning rollout for theta + std_dev * Noise")
     returns[:, 1], lengths[:, 1] = niche.rollout_batch(
         (theta - noise_std * noise.get(noise_idx, len(theta))
          for noise_idx in noise_inds), batch_size, random_state)
@@ -141,7 +145,7 @@ class ESOptimizer:
 
         from .optimizers import Adam, SimpleSGD
 
-        logger.debug('Creating optimizer {}...'.format(optim_id))
+        logger.info('Creating optimizer {}...'.format(optim_id))
         self.fiber_pool = fiber_pool
         self.fiber_shared = fiber_shared
 
@@ -149,8 +153,8 @@ class ESOptimizer:
         assert self.fiber_pool is not None
 
         self.theta = theta
-        #print(self.theta)
-        logger.debug('Optimizer {} optimizing {} parameters'.format(
+        # print(self.theta)
+        logger.info('Optimizer {} optimizing {} parameters'.format(
             optim_id, len(theta)))
         self.optimizer = Adam(self.theta, stepsize=learning_rate)
         self.sgd_optimizer = SimpleSGD(stepsize=learning_rate)
@@ -222,10 +226,10 @@ class ESOptimizer:
         self.checkpoint_thetas = None
         self.checkpoint_scores = None
 
-        self.self_evals = None   # Score of current parent theta
-        self.proposal = None   # Score of best transfer
-        self.proposal_theta = None # Theta of best transfer
-        self.proposal_source = None # Source of best transfer
+        self.self_evals = None  # Score of current parent theta
+        self.proposal = None  # Score of best transfer
+        self.proposal_theta = None  # Theta of best transfer
+        self.proposal_source = None  # Source of best transfer
 
         self.created_at = created_at
         self.start_score = None
@@ -236,7 +240,7 @@ class ESOptimizer:
         self.iteration = 0
 
     def __del__(self):
-        logger.debug('Optimizer {} cleanning up workers...'.format(
+        logger.info('Optimizer {} cleanning up workers...'.format(
             self.optim_id))
 
     def clean_dicts_before_iter(self):
@@ -249,7 +253,7 @@ class ESOptimizer:
     def pick_proposal(self, checkpointing, reset_optimizer):
 
         accept_key = 'accept_theta_in_{}'.format(
-                self.optim_id)
+            self.optim_id)
         if checkpointing and self.checkpoint_scores > self.proposal:
             self.log_data[accept_key] = 'do_not_consider_CP'
         else:
@@ -273,10 +277,10 @@ class ESOptimizer:
         self.log_data['iteration'] = iteration
         self.data_logger.log(**self.log_data)
 
-        logger.debug('iter={} Optimizer {} best score {}'.format(
+        logger.info('iter={} Optimizer {} best score {}'.format(
             iteration, self.optim_id, self.best_score))
 
-        #if iteration % 100 == 0:
+        # if iteration % 100 == 0:
         #    self.save_policy(self.filename_best+'.arxiv.'+str(iteration))
 
         self.save_policy(self.filename_best)
@@ -289,10 +293,9 @@ class ESOptimizer:
                 self.best_score = None
                 self.best_theta = None
 
-
     def update_dicts_after_transfer(self, source_optim_id, source_optim_theta, stats, keyword):
         eval_key = 'eval_returns_mean_{}_from_others_in_{}'.format(keyword,  # noqa
-            self.optim_id)
+                                                                   self.optim_id)
         if eval_key not in self.log_data.keys():
             self.log_data[eval_key] = source_optim_id + '_' + str(stats.eval_returns_mean)
         else:
@@ -300,7 +303,7 @@ class ESOptimizer:
 
         if stats.eval_returns_mean > self.proposal:
             self.proposal = stats.eval_returns_mean
-            self.proposal_source = source_optim_id + ('' if keyword=='theta' else "_proposal")
+            self.proposal_source = source_optim_id + ('' if keyword == 'theta' else "_proposal")
             self.proposal_theta = np.array(source_optim_theta)
 
     def update_dicts_after_es(self, stats, self_eval_stats):
@@ -376,29 +379,28 @@ class ESOptimizer:
 
     def broadcast_theta(self, theta):
         '''On all worker, set thetas[this optimizer] to theta'''
-        logger.debug('Optimizer {} broadcasting theta...'.format(self.optim_id))
+        logger.info('Optimizer {} broadcasting theta...'.format(self.optim_id))
 
         thetas = self.fiber_shared["thetas"]
         thetas[self.optim_id] = theta
         self.iteration += 1
 
-
     def add_env(self, env):
         '''On all worker, add env_name to niche'''
-        logger.debug('Optimizer {} add env {}...'.format(self.optim_id, env.name))
+        logger.info('Optimizer {} add env {}...'.format(self.optim_id, env.name))
 
         thetas = self.fiber_shared["niches"]
         niches[self.optim_id].add_env(env)
 
     def delete_env(self, env_name):
         '''On all worker, delete env from niche'''
-        logger.debug('Optimizer {} delete env {}...'.format(self.optim_id, env_name))
+        logger.info('Optimizer {} delete env {}...'.format(self.optim_id, env_name))
 
         niches = self.fiber_shared["niches"]
-        niches[optim_id].delete_env(env_name)
+        niches[self.optim_id].delete_env(env_name)
 
     def start_chunk_fiber(self, runner, batches_per_chunk, batch_size, *args):
-        logger.debug('Optimizer {} spawning {} batches of size {} for {}'.format(
+        logger.info('Optimizer {} spawning {} batches of size {} for {}'.format(
             self.optim_id, batches_per_chunk, batch_size, runner.__name__))
 
         rs_seeds = np.random.randint(np.int32(2 ** 31 - 1), size=batches_per_chunk)
@@ -411,10 +413,11 @@ class ESOptimizer:
         for i in range(batches_per_chunk):
             chunk_tasks.append(
                 pool.apply_async(runner, args=(self.iteration,
-                    self.optim_id, batch_size, rs_seeds[i])+args))
+                                               self.optim_id, batch_size, rs_seeds[i]) + args))
         return chunk_tasks
 
     def get_chunk(self, tasks):
+        # number of tasks is number of batches per chunk
         return [task.get() for task in tasks]
 
     def collect_po_results(self, po_results):
@@ -481,7 +484,7 @@ class ESOptimizer:
         eval_returns, eval_lengths = self.collect_eval_results(eval_results)
         step_t_end = time.time()
 
-        logger.debug(
+        logger.info(
             'get_theta_eval {} finished running {} episodes, {} timesteps'.format(
                 self.optim_id, len(eval_returns), eval_lengths.sum()))
 
@@ -513,15 +516,18 @@ class ESOptimizer:
         return step_results, theta, step_t_start
 
     def get_step(self, res, propose_with_adam=True, decay_noise=True, propose_only=False):
+        logger.info("Splitting task")
         step_tasks, theta, step_t_start = res
+        logger.info("Calling get chunk")
         step_results = self.get_chunk(step_tasks)
-
+        logger.info("Calling collect po results")
         _, po_returns, po_lengths = self.collect_po_results(
             step_results)
+        logger.info("Collected!")
         episodes_this_step = len(po_returns)
         timesteps_this_step = po_lengths.sum()
 
-        logger.debug(
+        logger.info(
             'Optimizer {} finished running {} episodes, {} timesteps'.format(
                 self.optim_id, episodes_this_step, timesteps_this_step))
 
@@ -536,14 +542,14 @@ class ESOptimizer:
                 self.noise_std = max(
                     self.noise_std * self.noise_decay, self.noise_limit)
 
-        else:  #only make proposal
+        else:  # only make proposal
             if propose_with_adam:
                 update_ratio, theta = self.optimizer.propose(
                     theta, -grads + self.l2_coeff * theta)
             else:
                 update_ratio, theta = self.sgd_optimizer.compute(
                     theta, -grads + self.l2_coeff * theta)  # keeps no state
-        logger.debug(
+        logger.info(
             'Optimizer {} finished computing gradients'.format(
                 self.optim_id))
 
@@ -572,7 +578,6 @@ class ESOptimizer:
         self_eval_task = self.start_theta_eval(theta)
         self_eval_stats = self.get_theta_eval(self_eval_task)
         return self_eval_stats.eval_returns_mean
-
 
     def evaluate_transfer(self, optimizers, propose_with_adam=False):
 

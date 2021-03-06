@@ -13,10 +13,12 @@
 # limitations under the License.
 
 import sys
-sys.path.insert(0, '/home/shared/gym-minigrid/')
+
+sys.path.insert(0, '../gym-minigrid/')
 
 from argparse import ArgumentParser
 import logging
+
 logging.basicConfig(level=logging.INFO)
 # logging.basicConfig(level=logging.DEBUG) # Uncomment this line for debug messages
 logger = logging.getLogger(__name__)
@@ -26,19 +28,19 @@ from poet_distributed.poet_algo import MultiESOptimizer
 
 
 def run_main(args):
-
     initialize_master_fiber()
 
-    #set master_seed
+    # set master_seed
     np.random.seed(args.master_seed)
 
     optimizer_zoo = MultiESOptimizer(args=args)
 
     optimizer_zoo.optimize(iterations=args.n_iterations,
-                       propose_with_adam=args.propose_with_adam,
-                       reset_optimizer=True,
-                       checkpointing=args.checkpointing,
-                       steps_before_transfer=args.steps_before_transfer)
+                           propose_with_adam=args.propose_with_adam,
+                           reset_optimizer=True,
+                           checkpointing=args.checkpointing,
+                           steps_before_transfer=args.steps_before_transfer)
+
 
 def main():
     parser = ArgumentParser()
@@ -79,6 +81,7 @@ def main():
     logger.info(args)
 
     run_main(args)
+
 
 if __name__ == "__main__":
     main()

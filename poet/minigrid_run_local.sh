@@ -28,7 +28,7 @@ python3 -u minigrid_master.py \
   --batches_per_chunk=48 \
   --eval_batch_size=1 \
   --eval_batches_per_step=5 \
-  --master_seed=24582922 \
+  --master_seed=42 \
   --noise_std=0.01 \
   --noise_decay=0.999 \
   --noise_limit=0.01 \
@@ -40,5 +40,5 @@ python3 -u minigrid_master.py \
   --adjust_interval=4 \
   --propose_with_adam \
   --steps_before_transfer=25 \
-  --num_workers 8 \
+  --num_workers 12 \
   --n_iterations=$ITR 2>&1 | tee poet_mini/$experiment/ipp/run.log

@@ -179,7 +179,7 @@ def simulate(model, seed, train_mode=False, render_mode=False, num_episode=5,
             max_episode_length = max_len
 
     if (seed >= 0):
-        logger.debug('Setting seed to {}'.format(seed))
+        logger.info('Setting seed to {}'.format(seed))
         random.seed(seed)
         np.random.seed(seed)
         model.env.seed(seed)

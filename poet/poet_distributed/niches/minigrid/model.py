@@ -7,7 +7,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 final_mode = False
-render_mode = True
+render_mode = False
 RENDER_DELAY = False
 record_video = False
 MEAN_MODE = False
@@ -174,7 +174,7 @@ def reshape_obs(obs):
     return ret_obs
 
 
-def simulate(model, seed, train_mode=False, render_mode=True, num_episode=5,
+def simulate(model, seed, train_mode=False, render_mode=False, num_episode=5,
              max_len=-1, env_config_this_sim=None):
     reward_list = []
     t_list = []
@@ -186,7 +186,7 @@ def simulate(model, seed, train_mode=False, render_mode=True, num_episode=5,
             max_episode_length = max_len
 
     if (seed >= 0):
-        logger.debug('Setting seed to {}'.format(seed))
+        logger.info('Setting seed to {}'.format(seed))
         random.seed(seed)
         np.random.seed(seed)
         model.env.seed(seed)
@@ -205,7 +205,11 @@ def simulate(model, seed, train_mode=False, render_mode=True, num_episode=5,
             obs = np.zeros(model.input_size)
 
         total_reward = 0.0
-        for t in range(max_episode_length): 
+        logger.info(f"Max length of episode: {max_episode_length}")
+        done = False
+        t = -1
+        for t in range(max_episode_length):
+            # logger.info(f"Running episode at step {t + 1}")
             if render_mode:
                 model.env.render("human")
                 if RENDER_DELAY:
@@ -220,17 +224,15 @@ def simulate(model, seed, train_mode=False, render_mode=True, num_episode=5,
                         obs, t=t, mean_mode=(not train_mode))
                 else:
                     action = model.get_action(obs, t=t, mean_mode=False)
-            #print('t:{}\taction:{}'.format(t, action),flush=True)
             obs, reward, done, info = model.env.step(action)
             obs = reshape_obs(obs)
             total_reward += reward
 
             if done:
-                #print("reward: ", reward)
+                logger.info(f"reward: {total_reward}")
                 break
 
-        if render_mode:
-            print("reward", total_reward, "timesteps", t)
+        logger.info(f"timesteps: {t + 1}")
         reward_list.append(total_reward)
         t_list.append(t)
 

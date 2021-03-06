@@ -19,7 +19,7 @@ class SharedNoiseTable(object):
         import multiprocessing
         seed = 42
         # 1 gigabyte of 32-bit numbers. Will actually sample 2 gigabytes below.
-        count = 250000000 if not debug else 1000000
+        count = 25000 if not debug else 100
         logger.info('Sampling {} random numbers with seed {}'.format(
             count, seed))
         self._shared_mem = multiprocessing.Array(ctypes.c_float, count)
@@ -27,6 +27,7 @@ class SharedNoiseTable(object):
         assert self.noise.dtype == np.float32
         self.noise[:] = np.random.RandomState(seed).randn(
             count)  # 64-bit to 32-bit conversion here
+
         logger.info('Sampled {} bytes'.format(self.noise.size * 4))
 
     def get(self, i, dim):
