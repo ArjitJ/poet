@@ -110,7 +110,7 @@ class Model:
 
     def get_action(self, x, t=0, mean_mode=False):
         # if mean_mode = True, ignore sampling.
-        h = np.array(x).flatten()/255
+        h = np.array(x).flatten()/10
         h = 2*h - 1
         if self.time_input == 1:
             time_signal = float(t) / self.time_factor
