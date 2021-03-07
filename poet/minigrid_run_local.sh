@@ -8,7 +8,7 @@ fi
 if [ -z "$2" ]
 then
     echo "Setting iteration to default of 50000"
-    ITR=50000
+    ITR=1000
 else
     ITR=$2
 fi
@@ -32,6 +32,9 @@ python3 -u minigrid_master.py \
   --noise_std=0.01 \
   --noise_decay=0.999 \
   --noise_limit=0.01 \
+  --repro_threshold 10 \
+  --mc_lower -20 \
+  --mc_upper 95 \
   --normalize_grads_by_noise_std \
   --returns_normalization=centered_ranks \
   --stochastic \
