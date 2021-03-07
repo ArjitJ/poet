@@ -59,7 +59,7 @@ class Model:
         if game.time_factor > 0:
             self.time_factor = float(game.time_factor)
             self.time_input = 1
-        self.input_size = game.input_size
+        self.input_size = game.input_size//3+1
         self.output_size = game.output_size
         self.shapes = [(self.input_size + self.time_input, self.layer_1),
                        (self.layer_1, self.layer_2),
@@ -169,8 +169,8 @@ class Model:
 # The obs object put out py minigrid is a dict with image [7x7x3 of ints], direction [1 int], and mission string [string]
 #  This reshapes obs into [image.flatten(), direction]
 def reshape_obs(obs):
-    ret_obs = obs.flatten()
-#     ret_obs = np.append(ret_obs, obs['direction'])
+    ret_obs = obs['image'][:,:,0].flatten()
+    ret_obs = np.append(ret_obs, obs['direction'])
     return ret_obs
 
 
