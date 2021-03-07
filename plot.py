@@ -2,7 +2,7 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 
-avg = 1000
+avg = int(sys.argv[2]) if len(sys.argv) > 2 else 1000
 x = []
 for line in open(sys.argv[1], 'r'):
     x.append(float(line.strip()))

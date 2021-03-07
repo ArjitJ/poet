@@ -7,8 +7,8 @@ import logging
 
 logger = logging.getLogger(__name__)
 DEFAULT_ENV = Env_config(
-        name='default_env',
-        lava_prob=[0., 0],
+        name='l[0.0, 0.0]_obs[0.0, 0.0]_btb[0.0, 0.0]_d[0.0, 0.0]_w[0.0, 0.0]',
+        lava_prob=[0., 0.],
         obstacle_lvl=[0., 0.],
         box_to_ball_prob=[0., 0.],
         door_prob=[0., 0.],
