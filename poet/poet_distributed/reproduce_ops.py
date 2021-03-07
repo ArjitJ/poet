@@ -49,11 +49,11 @@ class Reproducer:
         elif len(max_value) == 2:
             choices = []
             for change0 in [increment, 0.0, -increment]:
-                arr0 = np.round(arr[0] + change0, 1)
+                arr0 = np.round(arr[0] + change0, 2)
                 if arr0 > max_value[0] or arr0 < default_value[0]:
                     continue
                 for change1 in [increment, 0.0, -increment]:
-                    arr1 = np.round(arr[1] + change1, 1)
+                    arr1 = np.round(arr[1] + change1, 2)
                     if arr1 > max_value[1] or arr1 < default_value[1]:
                         continue
                     if change0 == 0.0 and change1 == 0.0:
@@ -166,18 +166,18 @@ class MG_Reproducer(Reproducer):
         wall_prob = list(parent.wall_prob)
 
         if 'lava' in self.categories:
-            lava_prob = self.populate_array(lava_prob, [0.0, 0.1], increment=0.05, max_value=[0.4, 0.4])
+            lava_prob = self.populate_array(lava_prob, [0.0, 0.0], increment=0.05, max_value=[0.4, 0.4])
         if 'obstacle' in self.categories:
-            obstacle_lvl = self.populate_array(obstacle_lvl, [0, 1], increment=0.33, max_value=[5, 5])
+            obstacle_lvl = self.populate_array(obstacle_lvl, [0, 0], increment=0.33, max_value=[5, 5])
 
         if 'box_to_ball' in self.categories:
-            btb_prob = self.populate_array(btb_prob, [0.0, 0.3], increment=0.05, max_value=[1.0, 1.0])
+            btb_prob = self.populate_array(btb_prob, [0.0, 0.0], increment=0.05, max_value=[1.0, 1.0])
 
         if 'door' in self.categories:
-            door_prob = self.populate_array(door_prob, [0.0, 0.3], increment=0.05, max_value=[1.0, 1.0])
+            door_prob = self.populate_array(door_prob, [0.0, 0.0], increment=0.05, max_value=[1.0, 1.0])
 
         if 'wall' in self.categories:
-            wall_prob = self.populate_array(wall_prob, [0.0, 0.3], increment=0.05, max_value=[1.0, 1.0])
+            wall_prob = self.populate_array(wall_prob, [0.0, 0.0], increment=0.05, max_value=[1.0, 1.0])
 
         child_name = mg_name_env_config(lava_prob, obstacle_lvl, btb_prob, door_prob, wall_prob)
 
