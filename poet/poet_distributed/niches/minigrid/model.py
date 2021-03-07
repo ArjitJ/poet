@@ -174,7 +174,7 @@ def reshape_obs(obs):
     return ret_obs
 
 
-def simulate(model, seed, train_mode=False, render_mode=False, num_episode=5,
+def simulate(model, seed, train_mode=False, render_mode=True, num_episode=5,
              max_len=-1, env_config_this_sim=None):
     reward_list = []
     t_list = []

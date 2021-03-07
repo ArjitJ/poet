@@ -43,5 +43,5 @@ python3 -u minigrid_master.py \
   --adjust_interval=4 \
   --propose_with_adam \
   --steps_before_transfer=25 \
-  --num_workers 12 \
+  --num_workers 1 \
   --n_iterations=$ITR 2>&1 | tee poet_mini/$experiment/ipp/run.log

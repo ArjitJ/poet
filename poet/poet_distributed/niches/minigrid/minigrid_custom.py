@@ -24,7 +24,7 @@ class MiniGridCustom(MazeEnv):
         
         # size=3 corresponds to a 17x17 maze
         # size=2 corresponds to a 9x9 maze
-        super().__init__(size=2, limit=2)
+        super().__init__(size=2, limit=3)
         
 
     def _seed(self,seed=None):
