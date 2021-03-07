@@ -186,7 +186,7 @@ def simulate(model, seed, train_mode=False, render_mode=False, num_episode=5,
             max_episode_length = max_len
 
     if (seed >= 0):
-        logger.info('Setting seed to {}'.format(seed))
+        # logger.info('Setting seed to {}'.format(seed))
         random.seed(seed)
         np.random.seed(seed)
         model.env.seed(seed)
@@ -205,7 +205,6 @@ def simulate(model, seed, train_mode=False, render_mode=False, num_episode=5,
             obs = np.zeros(model.input_size)
 
         total_reward = 0.0
-        logger.info(f"Max length of episode: {max_episode_length}")
         done = False
         t = -1
         for t in range(max_episode_length):
