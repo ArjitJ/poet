@@ -209,6 +209,12 @@ class MultiESOptimizer:
                                                          source_optim_theta=source_optim.theta,
                                                          stats=stats, keyword='theta')
 
+        proposal_values = np.zeros((len(self.optimizers), len(self.optimizers)))
+
+        opt_to_idx = {}
+        for idx, optim in enumerate(self.optimizers.values()):
+            opt_to_idx[optim] = idx
+
         logger.info('Computing proposal transfers...')
         for source_optim in self.optimizers.values():
             source_tasks = []
@@ -224,6 +230,8 @@ class MultiESOptimizer:
                 proposal_eval_task = target_optim.start_theta_eval(proposed_theta)
                 proposal_eval_stats = target_optim.get_theta_eval(proposal_eval_task)
 
+                proposal_values[opt_to_idx[source_optim], opt_to_idx[target_optim]] = proposal_eval_stats.eval_returns_mean
+
                 target_optim.update_dicts_after_transfer(source_optim_id=source_optim.optim_id,
                                                          source_optim_theta=proposed_theta,
                                                          stats=proposal_eval_stats, keyword='proposal')
@@ -231,6 +239,8 @@ class MultiESOptimizer:
         logger.info('Considering transfers...')
         for o in self.optimizers.values():
             o.pick_proposal(checkpointing, reset_optimizer)
+
+        return proposal_values
 
     def check_optimizer_status(self, iteration):
         '''
@@ -369,9 +379,11 @@ class MultiESOptimizer:
 
             if len(self.optimizers) > 1 and iteration % steps_before_transfer == 0:
                 logger.info(f"Transfer initiated on iteration {iteration + 1}")
-                self.transfer(propose_with_adam=propose_with_adam,
+                proposal_values = self.transfer(propose_with_adam=propose_with_adam,
                               checkpointing=checkpointing,
                               reset_optimizer=reset_optimizer)
+
+                np.savetxt('proposal_values_itr_'+str(iteration)+'.txt', x, fmt='%1.6f', delimiter=',')
 
             if iteration % steps_before_transfer == 0:
                 for o in self.optimizers.values():
