@@ -383,7 +383,7 @@ class MultiESOptimizer:
                               checkpointing=checkpointing,
                               reset_optimizer=reset_optimizer)
 
-                np.savetxt('proposal_values_itr_'+str(iteration)+'.txt', x, fmt='%1.6f', delimiter=',')
+                np.savetxt('proposal_values_itr_'+str(iteration)+'.txt', proposal_values, fmt='%1.6f', delimiter=',')
 
             if iteration % steps_before_transfer == 0:
                 for o in self.optimizers.values():
