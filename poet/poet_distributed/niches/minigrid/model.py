@@ -110,8 +110,8 @@ class Model:
 
     def get_action(self, x, t=0, mean_mode=False):
         # if mean_mode = True, ignore sampling.
-        h = np.array(x).flatten()/10
-        h = 2*h - 1
+        h = np.array(x).flatten()
+#         h = 2*h - 1
         if self.time_input == 1:
             time_signal = float(t) / self.time_factor
             h = np.concatenate([h, [time_signal]])
@@ -163,18 +163,34 @@ class Model:
         self.set_model_params(model_params)
 
     def get_random_model_params(self, stdev=0.01):
-        return np.random.randn(self.param_count) * stdev
+        weights = np.random.randn(self.param_count) * stdev
+        pointer = 0
+        for i in range(len(self.shapes)):
+            w_shape = self.shapes[i]
+            b_shape = self.shapes[i][1]
+            s_w = np.product(w_shape)
+            s = s_w + b_shape
+            # Initializing the bias. Let's try 0 first.
+            # We can also make it a small positive value to make sure ReLUs fire initially
+            weights[pointer+s_w:pointer+s] = 0
+            pointer += s
+        #Actions are left, right, forward, pickup, drop, toggle
+        weights[-3:] = -1 # Softmax bias for pickup, drop, toggle
+        weights[-6:-4] = 0 # Softmax bias for left, right
+        weights[-4] = 1 # Softmax bias for forward!
+        return weights
+#         return np.random.randn(self.param_count) * stdev
 
 
 # The obs object put out py minigrid is a dict with image [7x7x3 of ints], direction [1 int], and mission string [string]
 #  This reshapes obs into [image.flatten(), direction]
 def reshape_obs(obs):
-    ret_obs = obs['image'][:,:,0].flatten()
-    ret_obs = np.append(ret_obs, obs['direction'])
+    ret_obs = obs['image'][:,:,0].flatten()/10
+    ret_obs = np.append(ret_obs, obs['direction']/4)
     return ret_obs
 
 
-def simulate(model, seed, train_mode=False, render_mode=False, num_episode=5,
+def simulate(model, seed, train_mode=False, render_mode=render_mode, num_episode=5,
              max_len=-1, env_config_this_sim=None):
     reward_list = []
     t_list = []
@@ -210,7 +226,7 @@ def simulate(model, seed, train_mode=False, render_mode=False, num_episode=5,
         for t in range(max_episode_length):
             # logger.info(f"Running episode at step {t + 1}")
             if render_mode:
-                model.env.render("human")
+                model.env.render("human", highlight=False)
                 if RENDER_DELAY:
                     time.sleep(0.01)
 
