@@ -247,6 +247,39 @@ class FullyObsWrapper(gym.core.ObservationWrapper):
             'image': full_grid
         }
 
+class FullyObsWrapperWithDir(gym.core.ObservationWrapper):
+    """
+    Fully observable gridworld using a compact grid encoding
+    """
+
+    def __init__(self, env):
+        super().__init__(env)
+
+        self.observation_space.spaces["image"] = spaces.Box(
+            low=0,
+            high=255,
+            shape=(self.env.width, self.env.height, 3),  # number of cells
+            dtype='uint8'
+        )
+
+    def observation(self, obs):
+        env = self.unwrapped
+        full_grid = env.grid.encode()
+        full_grid[env.agent_pos[0]][env.agent_pos[1]] = np.array([
+            OBJECT_TO_IDX['agent'],
+            COLOR_TO_IDX['red'],
+            env.agent_dir
+        ])
+        full_grid = full_grid[1:-1, 1:-1]
+
+        return {
+            'mission': obs['mission'],
+            'image': full_grid,
+            'direction':env.agent_dir
+        }
+
+    
+    
 class FlatObsWrapper(gym.core.ObservationWrapper):
     """
     Encode mission strings using a one-hot scheme,
