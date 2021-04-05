@@ -7,7 +7,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 final_mode = False
-render_mode = True
+render_mode = False
 RENDER_DELAY = False
 record_video = False
 MEAN_MODE = False
