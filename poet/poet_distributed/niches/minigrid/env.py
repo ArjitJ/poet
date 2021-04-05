@@ -1,7 +1,7 @@
 from collections import namedtuple
 # import gym
 from .minigrid_custom import MiniGridCustom, Env_config  # noqa
-from gym_minigrid.wrappers import ImgObsWrapper
+from gym_minigrid.wrappers import FullyObsWrapperWithDir
 
 
 def make_env(env_name, seed, render_mode=False, env_config=None):
@@ -15,7 +15,7 @@ def make_env(env_name, seed, render_mode=False, env_config=None):
     #         env.render("human")
     if (seed >= 0):
         env.seed(seed)
-    # env = ImgObsWrapper(env)
+    env = FullyObsWrapperWithDir(env)
     # print("environment details")
     # print("env.action_space", env.action_space)
     # print("high, low", env.action_space.high, env.action_space.low)
