@@ -32,7 +32,7 @@ Game = namedtuple('Game', ['env_name', 'time_factor', 'input_size',
                            'output_noise'])
 
 minigridhard_custom = Game(env_name='MiniGridCustom',
-                           input_size=147,
+                           input_size=50,
                            output_size=6,
                            time_factor=0,
                            layers=[16, 16],

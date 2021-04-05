@@ -41,8 +41,8 @@ class MazeEnv(MiniGridEnv):
         
         super().__init__(
             grid_size = self.size,
-            max_steps = 3*self.size*self.size,
-#             max_steps = 200,
+            max_steps = 2*self.size*self.size,
+            # max_steps = 200,
             seed = seed,
             # Set this to True for maximum speed
             see_through_walls=True

@@ -275,7 +275,8 @@ class FullyObsWrapperWithDir(gym.core.ObservationWrapper):
         return {
             'mission': obs['mission'],
             'image': full_grid,
-            'direction':env.agent_dir
+            'direction':env.agent_dir,
+            'agent_pos':env.agent_pos
         }
 
     

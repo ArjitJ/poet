@@ -37,16 +37,16 @@ IDX_TO_COLOR = dict(zip(COLOR_TO_IDX.values(), COLOR_TO_IDX.keys()))
 # Map of object type to integers
 OBJECT_TO_IDX = {
     'unseen'        : 0,
-    'empty'         : 1,
-    'wall'          : 2,
-    'floor'         : 3,
-    'door'          : 4,
-    'key'           : 5,
-    'ball'          : 6,
-    'box'           : 7,
-    'goal'          : 8,
-    'lava'          : 9,
-    'agent'         : 10,
+    'empty'         : 0,
+    'key'           : 0,
+    'wall'          : 1,
+    'floor'         : 0,
+    'door'          : 2,
+    'ball'          : 4,
+    'box'           : 5,
+    'goal'          : 6,
+    'lava'          : 3,
+    'agent'         : 7,
 }
 
 IDX_TO_OBJECT = dict(zip(OBJECT_TO_IDX.values(), OBJECT_TO_IDX.keys()))
@@ -1240,6 +1240,7 @@ class MiniGridEnv(gym.Env):
         if close:
             if self.window:
                 self.window.close()
+                self.window = None
             return
 
         if mode == 'human' and not self.window:
@@ -1294,4 +1295,5 @@ class MiniGridEnv(gym.Env):
     def close(self):
         if self.window:
             self.window.close()
+            self.window = None
         return
