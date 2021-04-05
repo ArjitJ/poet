@@ -1113,11 +1113,9 @@ class MiniGridEnv(gym.Env):
             self.agent_dir -= 1
             if self.agent_dir < 0:
                 self.agent_dir += 4
-            reward -= 0.05
         # Rotate right
         elif action == self.actions.right:
             self.agent_dir = (self.agent_dir + 1) % 4
-            reward -= 0.05
         # Move forward
         elif action == self.actions.forward:
             if fwd_cell == None or fwd_cell.can_overlap():
@@ -1135,8 +1133,6 @@ class MiniGridEnv(gym.Env):
                     self.carrying = fwd_cell
                     self.carrying.cur_pos = np.array([-1, -1])
                     self.grid.set(*fwd_pos, None)
-            else:
-                reward -= 0.05
         
         # Drop an object
         elif action == self.actions.drop:
@@ -1144,15 +1140,11 @@ class MiniGridEnv(gym.Env):
                 self.grid.set(*fwd_pos, self.carrying)
                 self.carrying.cur_pos = fwd_pos
                 self.carrying = None
-            else:
-                reward -= 0.05
         
         # Toggle/activate an object
         elif action == self.actions.toggle:
             if fwd_cell:
                 fwd_cell.toggle(self, fwd_pos)
-            else:
-                reward -= 0.05
         # Done action (not used by default)
         elif action == self.actions.done:
             pass
