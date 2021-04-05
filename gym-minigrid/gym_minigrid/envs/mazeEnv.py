@@ -220,15 +220,7 @@ class MazeEnv(MiniGridEnv):
             else: # The agent ran out of time
                 reward = -0.1 # Just penalize for an action taken
         else: # Episode isn't over yet
-            # If the agent tried to walk over an obstacle or wall
-            if action == self.actions.forward:
-                if not_clear:
-                    reward = -0.15
-                else:
-                    reward -= 0.05
-            else: # The agent completed an allowed move
-                # penalty for each step
-                reward  -= 0.05
+            reward = -0.1
 
         return obs, reward, done, info
 
