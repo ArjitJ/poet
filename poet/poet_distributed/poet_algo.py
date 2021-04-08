@@ -93,6 +93,12 @@ class MultiESOptimizer:
                     logger.info('loading file %s' % (niche_file_complete))
                     model_params = np.array(data[0])  # assuming other stuff is in data
                     logger.info(model_params)
+                    if len(data) > 2:
+                        # here we have source and target
+                        num_transfer_src, num_transfer_tgt = data[2], data[3]
+                    else:
+                        num_transfer_src, num_transfer_tgt = 0, 0
+                self.numTransfers += num_transfer_src
 
                 env_def_file = prefix + niche_name + '.env.json'
                 with open(env_def_file, 'r') as f:
@@ -101,8 +107,8 @@ class MultiESOptimizer:
                 env = Env_config(**exp['config'])
                 logger.info(env)
                 seed = exp['seed']
-                self.add_optimizer(env=env, seed=seed, model_params=model_params)
-
+                self.add_optimizer(env=env, seed=seed, model_params=model_params,
+                                   num_trans_src=num_transfer_src, num_trans_tgt=num_transfer_tgt)
         else:
             # TODO: Modify for our parameters, start with empty lists so reproducer handles it
             env = DEFAULT_ENV
@@ -112,7 +118,8 @@ class MultiESOptimizer:
     def __del__(self):
         print("Total number of Transfers: ", self.numTransfers)
 
-    def create_optimizer(self, env, seed, created_at=0, model_params=None, is_candidate=False):
+    def create_optimizer(self, env, seed, created_at=0, model_params=None, is_candidate=False, num_trans_src=0,
+                         num_trans_tgt=0):
 
         assert env != None
 
@@ -147,14 +154,18 @@ class MultiESOptimizer:
             noise_limit=self.args.noise_limit,
             log_file=self.args.log_file,
             created_at=created_at,
-            is_candidate=is_candidate)
+            is_candidate=is_candidate,
+            num_trans_src=num_trans_src,
+            num_trans_tgt=num_trans_tgt
+        )
 
-    def add_optimizer(self, env, seed, created_at=0, model_params=None):
+    def add_optimizer(self, env, seed, created_at=0, model_params=None, num_trans_src=0, num_trans_tgt=0):
         '''
             creat a new optimizer/niche
             created_at: the iteration when this niche is created
         '''
-        o = self.create_optimizer(env, seed, created_at, model_params)
+        o = self.create_optimizer(env, seed, created_at, model_params,
+                                  num_trans_src=num_trans_src, num_trans_tgt=num_trans_tgt)
         optim_id = o.optim_id
         self.optimizers[optim_id] = o
 
