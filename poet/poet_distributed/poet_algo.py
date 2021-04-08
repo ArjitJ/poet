@@ -70,6 +70,7 @@ class MultiESOptimizer:
         # GDD: Modify the reproducer
         self.env_reproducer = Reproducer(args)
         self.optimizers = OrderedDict()
+        self.numTransfers = 0
 
         if args.start_from:
             logger.info("args.start_from {}".format(args.start_from))
@@ -241,6 +242,7 @@ class MultiESOptimizer:
             retval = o.pick_proposal(checkpointing, reset_optimizer)
             if retval > 0:
                 self.optimizers[retval].numTransfersSrc += 1
+                self.numTransfers += 1
 
         return proposal_values
 
@@ -361,8 +363,17 @@ class MultiESOptimizer:
                 else:
                     break
         else:
-            # TODO: Implement transfer based removal
-            pass
+            list_delete = []
+            temp_env_list = []
+            for i in self.env_registry.keys():
+                tmp = self.optimizers[i]
+                temp_env_list.append((i, (tmp.numTransfersTgt + tmp.numTransfersSrc, i)))
+            temp_env_list = sorted(temp_env_list, key = lambda x: x[1])
+            for optim_id in temp_env_list:
+                if len(list_delete) < num_removals:
+                    list_delete.append(optim_id)
+                else:
+                    break
 
         for optim_id in list_delete:
             self.delete_optimizer(optim_id)
