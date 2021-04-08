@@ -238,6 +238,8 @@ class ESOptimizer:
         self.best_theta = None
 
         self.iteration = 0
+        self.numTransferTgt = 0
+        self.numTransferSrc = 0
 
     def __del__(self):
         logger.info('Optimizer {} cleanning up workers...'.format(
@@ -251,6 +253,7 @@ class ESOptimizer:
         self.proposal_source = None
 
     def pick_proposal(self, checkpointing, reset_optimizer):
+        toReturn = -1
 
         accept_key = 'accept_theta_in_{}'.format(
             self.optim_id)
@@ -260,10 +263,12 @@ class ESOptimizer:
             self.log_data[accept_key] = '{}'.format(
                 self.proposal_source)
             if self.optim_id != self.proposal_source:
+                self.numTransfersTgt += 1
                 self.set_theta(
                     self.proposal_theta,
                     reset_optimizer=reset_optimizer)
                 self.self_evals = self.proposal
+                toReturn = self.proposal_source
 
         self.checkpoint_thetas = np.array(self.theta)
         self.checkpoint_scores = self.self_evals
@@ -271,6 +276,7 @@ class ESOptimizer:
         if self.best_score < self.self_evals:
             self.best_score = self.self_evals
             self.best_theta = np.array(self.theta)
+        return toReturn
 
     def save_to_logger(self, iteration):
         self.log_data['time_elapsed_so_far'] = time.time() - self.t_start
