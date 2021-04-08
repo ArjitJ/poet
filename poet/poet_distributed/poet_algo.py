@@ -238,7 +238,9 @@ class MultiESOptimizer:
 
         logger.info('Considering transfers...')
         for o in self.optimizers.values():
-            o.pick_proposal(checkpointing, reset_optimizer)
+            retval = o.pick_proposal(checkpointing, reset_optimizer)
+            if retval > 0:
+                self.optimizers[retval].numTransfersSrc += 1
 
         return proposal_values
 
@@ -351,12 +353,16 @@ class MultiESOptimizer:
                 self.remove_oldest(num_removals)
 
     def remove_oldest(self, num_removals):
-        list_delete = []
-        for optim_id in self.env_registry.keys():
-            if len(list_delete) < num_removals:
-                list_delete.append(optim_id)
-            else:
-                break
+        if self.args.removal == 'oldest':
+            list_delete = []
+            for optim_id in self.env_registry.keys():
+                if len(list_delete) < num_removals:
+                    list_delete.append(optim_id)
+                else:
+                    break
+        else:
+            # TODO: Implement transfer based removal
+            pass
 
         for optim_id in list_delete:
             self.delete_optimizer(optim_id)
