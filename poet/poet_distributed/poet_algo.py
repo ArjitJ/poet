@@ -243,8 +243,8 @@ class MultiESOptimizer:
         logger.info('Considering transfers...')
         for o in self.optimizers.values():
             retval = o.pick_proposal(checkpointing, reset_optimizer)
-            if retval > 0:
-                self.optimizers[retval].numTransfersSrc += 1
+            if retval is not None:
+                self.optimizers[retval].numTransferSrc += 1
                 self.numTransfers += 1
 
         return proposal_values
@@ -370,7 +370,7 @@ class MultiESOptimizer:
             temp_env_list = []
             for i in self.env_registry.keys():
                 tmp = self.optimizers[i]
-                temp_env_list.append((i, (tmp.numTransfersTgt + tmp.numTransfersSrc, i)))
+                temp_env_list.append((i, (tmp.numTransferTgt + tmp.numTransferSrc, tmp.created_at)))
             temp_env_list = sorted(temp_env_list, key = lambda x: x[1])
             for optim_id in temp_env_list:
                 if len(list_delete) < num_removals:
