@@ -244,6 +244,8 @@ class MultiESOptimizer:
         for o in self.optimizers.values():
             retval = o.pick_proposal(checkpointing, reset_optimizer)
             if retval is not None:
+                if retval.endswith('_proposal'):
+                    retval = retval[:-len('_proposal')]
                 self.optimizers[retval].numTransferSrc += 1
                 self.numTransfers += 1
 
