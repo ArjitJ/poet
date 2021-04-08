@@ -141,7 +141,9 @@ class ESOptimizer:
                  optim_id=0,
                  log_file='unname.log',
                  created_at=0,
-                 is_candidate=False):
+                 is_candidate=False,
+                 num_trans_src=0,
+                 num_trans_tgt=0):
 
         from .optimizers import Adam, SimpleSGD
 
@@ -238,8 +240,8 @@ class ESOptimizer:
         self.best_theta = None
 
         self.iteration = 0
-        self.numTransferTgt = 0
-        self.numTransferSrc = 0
+        self.numTransferTgt = num_trans_tgt
+        self.numTransferSrc = num_trans_src
 
     def __del__(self):
         logger.info('Optimizer {} cleanning up workers...'.format(
@@ -294,7 +296,8 @@ class ESOptimizer:
     def save_policy(self, policy_file, reset=False):
         if self.best_score is not None and self.best_theta is not None:
             with open(policy_file, 'wt') as out:
-                json.dump([self.best_theta.tolist(), self.best_score], out, sort_keys=True, indent=0, separators=(',', ': '))
+                json.dump([self.best_theta.tolist(), self.best_score, self.numTransferSrc, self.numTransferTgt], out,
+                          sort_keys=True, indent=0, separators=(',', ': '))
             if reset:
                 self.best_score = None
                 self.best_theta = None
