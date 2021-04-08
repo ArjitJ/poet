@@ -108,6 +108,9 @@ class MultiESOptimizer:
             env = DEFAULT_ENV
 
             self.add_optimizer(env=env, seed=args.master_seed)
+    
+    def __del__(self):
+        print("Total number of Transfers: ", self.numTransfers)
 
     def create_optimizer(self, env, seed, created_at=0, model_params=None, is_candidate=False):
 
