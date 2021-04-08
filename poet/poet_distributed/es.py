@@ -253,7 +253,7 @@ class ESOptimizer:
         self.proposal_source = None
 
     def pick_proposal(self, checkpointing, reset_optimizer):
-        toReturn = -1
+        toReturn = None
 
         accept_key = 'accept_theta_in_{}'.format(
             self.optim_id)
@@ -263,7 +263,7 @@ class ESOptimizer:
             self.log_data[accept_key] = '{}'.format(
                 self.proposal_source)
             if self.optim_id != self.proposal_source:
-                self.numTransfersTgt += 1
+                self.numTransferTgt += 1
                 self.set_theta(
                     self.proposal_theta,
                     reset_optimizer=reset_optimizer)
