@@ -385,7 +385,7 @@ class MultiESOptimizer:
                 tmp = self.optimizers[i]
                 temp_env_list.append((i, (tmp.numTransferTgt + tmp.numTransferSrc, tmp.created_at)))
             temp_env_list = sorted(temp_env_list, key = lambda x: x[1])
-            for optim_id in temp_env_list:
+            for optim_id, _ in temp_env_list:
                 if len(list_delete) < num_removals:
                     list_delete.append(optim_id)
                 else:
