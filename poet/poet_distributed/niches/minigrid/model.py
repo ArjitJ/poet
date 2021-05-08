@@ -59,7 +59,7 @@ class Model:
         if game.time_factor > 0:
             self.time_factor = float(game.time_factor)
             self.time_input = 1
-        self.input_size = 3#game.input_size
+        self.input_size = 9#3#game.input_size
         self.output_size = game.output_size
         self.shapes = [(self.input_size + self.time_input, self.layer_1),
                        (self.layer_1, self.layer_2),
@@ -187,8 +187,13 @@ class Model:
 #  This reshapes obs into [image.flatten(), direction]
 def reshape_obs(obs):
     # ret_obs = obs['image'][:,:,0].flatten()/10
-    ret_obs = np.array(list(obs['agent_pos']))
-    ret_obs = np.append(ret_obs, obs['direction']/4)
+#     ret_obs = np.array(list(obs['agent_pos']))
+#     ret_obs = np.append(ret_obs, obs['direction']/4)
+#     return ret_obs
+    ret_obs = np.zeros((3, 3))
+    tmp = obs['image'][:, :, 0]
+    pos_x, pos_y = obs['agent_pos']
+    ret_obs[max(pos_x-1, 0):pos_x+1, max(pos_y-1, 0):pos_y+1] = tmp[max(pos_x-1, 0):pos_x+1, max(pos_y-1, 0):pos_y+1]
     return ret_obs
 
 
