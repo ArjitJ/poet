@@ -191,9 +191,9 @@ def reshape_obs(obs):
 #     ret_obs = np.append(ret_obs, obs['direction']/4)
 #     return ret_obs
     ret_obs = np.zeros((3, 3))
-    tmp = obs['image'][:, :, 0]
+    tmp = np.pad(obs['image'][:, :, 0], [(1, 1), (1, 1)])
     pos_x, pos_y = obs['agent_pos']
-    ret_obs[max(pos_x-1, 0):pos_x+1, max(pos_y-1, 0):pos_y+1] = tmp[max(pos_x-1, 0):pos_x+1, max(pos_y-1, 0):pos_y+1]
+    ret_obs = tmp[pos_x-1:pos_x+2, pos_y-1:pos_y+2]
     return ret_obs
 
 
