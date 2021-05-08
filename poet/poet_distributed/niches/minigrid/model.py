@@ -194,7 +194,7 @@ def reshape_obs(obs):
     tmp = np.pad(obs['image'][:, :, 0], [(1, 1), (1, 1)])
     pos_x, pos_y = obs['agent_pos']
     ret_obs = tmp[pos_x-1:pos_x+2, pos_y-1:pos_y+2]
-    return ret_obs
+    return ret_obs.astype(float)
 
 
 def simulate(model, seed, train_mode=False, render_mode=render_mode, num_episode=5,
