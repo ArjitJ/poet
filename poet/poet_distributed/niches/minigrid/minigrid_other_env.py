@@ -1,5 +1,5 @@
 from ..core import Niche
-from .model_emb import Model, simulate
+from .model import Model, simulate
 from .env import minigridhard_custom, Env_config
 from collections import OrderedDict
 import logging
@@ -7,12 +7,12 @@ import logging
 
 logger = logging.getLogger(__name__)
 DEFAULT_ENV = Env_config(
-        name='l[0.0, 0.0]_obs[0.0, 0.0]_btb[0.0, 0.0]_d[0.0, 0.0]_w[0.0, 0.0]',
-        lava_prob=[0., 0.],
-        obstacle_lvl=[0., 0.],
-        box_to_ball_prob=[0., 0.],
+        name='l[0.05, 0.1]_obs[0.33, 0.66]_btb[0.1, 0.1]_d[0.0, 0.0]_w[0.1, 0.1]',
+        lava_prob=[0.05, 0.1],
+        obstacle_lvl=[0.33, 0.66],
+        box_to_ball_prob=[0.1, 0.1],
         door_prob=[0., 0.],
-        wall_prob=[0., 0.])
+        wall_prob=[0.1, 0.1])
 
 class MiniGridNiche(Niche):
     def __init__(self, env_configs, seed, init='random', stochastic=False):

@@ -1,3 +1,5 @@
+import random
+
 from gym_minigrid.minigrid import *
 from gym_minigrid.register import register
 from operator import add
@@ -64,12 +66,24 @@ class MazeEnv(MiniGridEnv):
             num_obstacle = int(self.size*self.obstacle_level)
             for i in range(num_obstacle):
                 # get position
+                which = random.choices([0, 1, 2, 3], weights=[self.lava_prob, self.wall_prob, self.door_prob, 1])[0]
                 x = self._rand_int(0, int((self.size-1)/2))*2+1
                 y = self._rand_int(0, int((self.size-1)/2))*2+1
-                if (x > 1 or y > 1) and self.grid.get(x, y)==None: # can't populate agent start position
+                if which == 0:
+                    if (x > 1 or y > 1) and self.grid.get(x, y) is None:
+                        self.grid.set(x, y, Lava())
+                elif which == 1:
+                    if (x > 1 or y > 1) and self.grid.get(x, y) is None:
+                       self.grid.set(x, y,  Wall())
+                # add doors
+                elif which == 2:
+                    if (x > 1 or y > 1) and self.grid.get(x, y) is None:
+                        self.grid.set(x, y, Door(color=self._rand_elem(COLOR_NAMES)))
+
+                if (x > 1 or y > 1) and self.grid.get(x, y) is None:  # can't populate agent start position
                     obj = None
                     if self._rand_float(0,1) < self.box2ball: # change box to ball
-                        if self._rand_float(0,1) < self.dynamic_prob: # make ball dynamic
+                        if self._rand_float(0,1) < self.dynamic_prob:  # make ball dynamic
                             self.dynamic_obstacles.append(Ball('yellow'))
                             obj = self.dynamic_obstacles[-1]
                         else:
@@ -107,25 +121,6 @@ class MazeEnv(MiniGridEnv):
                     if self.door_prob > self._rand_float(0,1):
                         self.grid.set(x+i, y+div, Door(color=self._rand_elem(COLOR_NAMES)))
 
-        # vertical wall
-        # generate gap positions
-        if div > 2: 
-            gap1 = self._rand_int(0, (div+1)/2)*2
-            gap2 = self._rand_int(0, (div+1)/2)*2 + div + 1
-        else:
-            gap1 = 0
-            gap2 = 2
-
-        for i in range(size):
-            if i%2==1:
-                self.grid.set(x+div, y+i,  Wall())
-            else:
-                if self.wall_prob > self._rand_float(0,1) and i!=gap1 and i!=gap2:
-                    self.grid.set(x+div, y+i,  Wall())
-                # add doors
-                else:
-                    if self.door_prob > self._rand_float(0,1):
-                        self.grid.set(x+div, y+i, Door(color=self._rand_elem(COLOR_NAMES)))
 
         '''
         # place keys
@@ -170,22 +165,7 @@ class MazeEnv(MiniGridEnv):
             self._construct_room(x+div+1, y+div+1, newSize, lvl)
 
     def _construct_room(self, x, y, size, lvl):
-        div = int((size-1)/2)
-
-        # Generate lava wall
-        if self.lava_prob > self._rand_float(0,1):
-            gap = self._rand_int(0, size)
-
-            # randomize orientation
-            dir = self._rand_bool()
-            if dir == 0:
-                for i in range(size):
-                    if i != gap:
-                        self.grid.set(x+i, y+div, Lava())
-            else:
-                for i in range(size):
-                    if i != gap:
-                        self.grid.set(x+div, y+i, Lava())  
+        pass
 
     def step(self, action):
 
@@ -216,7 +196,7 @@ class MazeEnv(MiniGridEnv):
                 if reward > 0.0: # The agent completed the maze
                     reward = 100 # A very high success reward
                 else: # The agent hit lava or some other issue
-                    reward = -5 # A relatively high penalty
+                    reward = -25 # A relatively high penalty
             else: # The agent ran out of time
                 reward = -0.1 # Just penalize for an action taken
         else: # Episode isn't over yet

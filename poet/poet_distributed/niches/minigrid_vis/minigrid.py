@@ -1,5 +1,5 @@
 from ..core import Niche
-from .model import Model, simulate
+from .model_emb import Model, simulate
 from .env import minigridhard_custom, Env_config
 from collections import OrderedDict
 import logging

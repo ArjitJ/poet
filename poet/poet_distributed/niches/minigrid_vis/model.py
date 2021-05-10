@@ -59,7 +59,7 @@ class Model:
         if game.time_factor > 0:
             self.time_factor = float(game.time_factor)
             self.time_input = 1
-        self.input_size = game.input_size//3+1
+        self.input_size = 9#3#game.input_size
         self.output_size = game.output_size
         self.shapes = [(self.input_size + self.time_input, self.layer_1),
                        (self.layer_1, self.layer_2),
@@ -72,7 +72,7 @@ class Model:
             self.activations = [np.tanh, np.tanh, sigmoid]
         elif game.activation == 'softmax':
             self.activations = [np.tanh, np.tanh, softmax]
-#             self.activations = [relu, relu, softmax]
+            self.activations = [relu, relu, softmax]
             self.sample_output = True
         elif game.activation == 'passthru':
             self.activations = [np.tanh, np.tanh, passthru]
@@ -110,7 +110,7 @@ class Model:
 
     def get_action(self, x, t=0, mean_mode=False):
         # if mean_mode = True, ignore sampling.
-        h = np.array(x).flatten()/10
+        h = np.array(x).flatten()
         h = 2*h - 1
         if self.time_input == 1:
             time_signal = float(t) / self.time_factor
@@ -163,15 +163,38 @@ class Model:
         self.set_model_params(model_params)
 
     def get_random_model_params(self, stdev=0.01):
-        return np.random.randn(self.param_count) * stdev
+        weights = np.random.randn(self.param_count) * stdev
+        pointer = 0
+        for i in range(len(self.shapes)):
+            w_shape = self.shapes[i]
+            b_shape = self.shapes[i][1]
+            s_w = np.product(w_shape)
+            s = s_w + b_shape
+            weights[pointer:pointer+s_w] = np.random.randn(s_w)*1/(self.shapes[i][0])
+            # Initializing the bias. Let's try 0 first.
+            # We can also make it a small positive value to make sure ReLUs fire initially
+            weights[pointer+s_w:pointer+s] = 0
+            pointer += s
+        #Actions are left, right, forward, pickup, drop, toggle
+        weights[-3:] = -0.5 # Softmax bias for pickup, drop, toggle
+        weights[-6:-4] = 0 # Softmax bias for left, right
+        weights[-4] = 0.5 # Softmax bias for forward!
+        return weights
+#         return np.random.randn(self.param_count) * stdev
 
 
 # The obs object put out py minigrid is a dict with image [7x7x3 of ints], direction [1 int], and mission string [string]
 #  This reshapes obs into [image.flatten(), direction]
 def reshape_obs(obs):
-    ret_obs = obs['image'][:,:,0].flatten()
-    ret_obs = np.append(ret_obs, obs['direction'])
-    return ret_obs
+    # ret_obs = obs['image'][:,:,0].flatten()/10
+#     ret_obs = np.array(list(obs['agent_pos']))
+#     ret_obs = np.append(ret_obs, obs['direction']/4)
+#     return ret_obs
+    ret_obs = np.zeros((3, 3))
+    tmp = np.pad(obs['image'][:, :, 0], [(1, 1), (1, 1)])
+    pos_x, pos_y = obs['agent_pos']
+    ret_obs = tmp[pos_x-1:pos_x+2, pos_y-1:pos_y+2]
+    return ret_obs.astype(float)
 
 
 def simulate(model, seed, train_mode=False, render_mode=False, num_episode=5,
@@ -230,7 +253,6 @@ def simulate(model, seed, train_mode=False, render_mode=False, num_episode=5,
             if done:
                 logger.info(f"reward: {total_reward}")
                 break
-
         logger.info(f"timesteps: {t + 1}")
         reward_list.append(total_reward)
         t_list.append(t)

@@ -1,4 +1,7 @@
 from collections import namedtuple
+
+import sys
+sys.path.insert(0, "/Users/yashs20/poet/gym-minigrid/")
 from gym_minigrid.envs.mazeEnv import MazeEnv
 from gym.utils import seeding
 

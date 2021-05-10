@@ -11,7 +11,7 @@ render_mode = False
 RENDER_DELAY = False
 record_video = False
 MEAN_MODE = False
-NUM_OBJECTS = 6
+
 
 def make_model(game):
     # can be extended in the future.
@@ -59,10 +59,9 @@ class Model:
         if game.time_factor > 0:
             self.time_factor = float(game.time_factor)
             self.time_input = 1
-        self.EMBEDDING_SIZE = 5
-        self.input_size = 8*self.EMBEDDING_SIZE#3#game.input_size
+        self.input_size = 9  # 3#game.input_size
         self.output_size = game.output_size
-        self.shapes = [(self.input_size + self.time_input, self.layer_1),
+        self.shapes = [(self.input_size * 8 + self.time_input, self.layer_1),
                        (self.layer_1, self.layer_2),
                        (self.layer_2, self.output_size)]
 
@@ -84,8 +83,8 @@ class Model:
         self.bias = []
         self.bias_log_std = []
         self.bias_std = []
-        self.embedding = np.random.random(size=(NUM_OBJECTS, self.EMBEDDING_SIZE))
-        self.param_count = NUM_OBJECTS*self.EMBEDDING_SIZE
+        self.param_count = 0
+
         idx = 0
         for shape in self.shapes:
             self.weight.append(np.zeros(shape=shape))
@@ -111,13 +110,18 @@ class Model:
 
     def get_action(self, x, t=0, mean_mode=False):
         # if mean_mode = True, ignore sampling.
-        x = self.embedding[x.astype(int).reshape(-1)].astype(float)
         h = np.array(x).flatten()
-        h = 2*h - 1
+        # h = 2*h - 1
+        one_hot = np.zeros(self.input_size * 8)
+        for i, h_elem in enumerate(h):
+            one_hot[8 * i + h_elem] = 1
+        h = one_hot
         if self.time_input == 1:
             time_signal = float(t) / self.time_factor
             h = np.concatenate([h, [time_signal]])
         num_layers = len(self.weight)
+        # print(h)
+
         for i in range(num_layers):
             w = self.weight[i]
             b = self.bias[i]
@@ -137,8 +141,6 @@ class Model:
 
     def set_model_params(self, model_params):
         pointer = 0
-        self.embedding = np.array(model_params[pointer:pointer+(NUM_OBJECTS*self.EMBEDDING_SIZE)]).reshape(NUM_OBJECTS, self.EMBEDDING_SIZE)
-        pointer += (NUM_OBJECTS*self.EMBEDDING_SIZE)
         for i in range(len(self.shapes)):
             w_shape = self.shapes[i]
             b_shape = self.shapes[i][1]
@@ -168,7 +170,7 @@ class Model:
 
     def get_random_model_params(self, stdev=0.01):
         weights = np.random.randn(self.param_count) * stdev
-        pointer = (NUM_OBJECTS*self.EMBEDDING_SIZE)
+        pointer = 0
         for i in range(len(self.shapes)):
             w_shape = self.shapes[i]
             b_shape = self.shapes[i][1]
@@ -187,7 +189,7 @@ class Model:
 #         return np.random.randn(self.param_count) * stdev
 
 
-# The obs object put out py minigrid is a dict with image [NUM_OBJECTSxNUM_OBJECTSx3 of ints], direction [1 int], and mission string [string]
+# The obs object put out py minigrid is a dict with image [7x7x3 of ints], direction [1 int], and mission string [string]
 #  This reshapes obs into [image.flatten(), direction]
 def reshape_obs(obs):
     # ret_obs = obs['image'][:,:,0].flatten()/10
@@ -198,8 +200,7 @@ def reshape_obs(obs):
     tmp = np.pad(obs['image'][:, :, 0], [(1, 1), (1, 1)])
     pos_x, pos_y = obs['agent_pos']
     ret_obs = tmp[pos_x-1:pos_x+2, pos_y-1:pos_y+2]
-    ret_obs = ret_obs.flatten()
-    return np.delete(ret_obs, 4, 0)
+    return ret_obs
 
 
 def simulate(model, seed, train_mode=False, render_mode=render_mode, num_episode=5,

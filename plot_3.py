@@ -15,12 +15,8 @@ for line in open(sys.argv[1], 'r'):
         y.append(iter)
 x = np.convolve(x, np.ones(avg)/avg, mode='valid')
 # avg = 100
-y = np.convolve(y, np.ones(avg)/avg, mode='valid')
+# y = np.convolve(y, np.ones(avg)/avg, mode='valid')
 plt.plot(x)
-y = [10000 * (y[i] - y[i-1]) for i in range(1, len(y))]
-# avg = 10
-y = np.convolve(y, np.ones(avg)/avg, mode='valid')
-plt.plot(y)
-plt.legend([f"Average reward in episodes [n, n + {avg - 1}]", "Scaled and smoothened gradient of number of iterations completed"])
-plt.xlabel("Episode #n over any and all (agent, env) pairs")
+# plt.legend([f"Average reward in episodes [n, n + {avg - 1}]", "Scaled and smoothened number of iterations completed"])
+# plt.xlabel("Episode #n over any and all (agent, env) pairs")
 plt.show()

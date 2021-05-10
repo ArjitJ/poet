@@ -1,7 +1,7 @@
 import numpy as np
 import random
 import json
-from .env import make_env
+from env import make_env
 import time
 import logging
 logger = logging.getLogger(__name__)
@@ -10,8 +10,8 @@ final_mode = False
 render_mode = False
 RENDER_DELAY = False
 record_video = False
-MEAN_MODE = False
-NUM_OBJECTS = 6
+MEAN_MODE = True
+
 
 def make_model(game):
     # can be extended in the future.
@@ -84,8 +84,8 @@ class Model:
         self.bias = []
         self.bias_log_std = []
         self.bias_std = []
-        self.embedding = np.random.random(size=(NUM_OBJECTS, self.EMBEDDING_SIZE))
-        self.param_count = NUM_OBJECTS*self.EMBEDDING_SIZE
+        self.embedding = np.random.random(size=(7, self.EMBEDDING_SIZE))
+        self.param_count = 7*self.EMBEDDING_SIZE
         idx = 0
         for shape in self.shapes:
             self.weight.append(np.zeros(shape=shape))
@@ -128,17 +128,18 @@ class Model:
                 output_noise = np.random.randn(out_size) * out_std
                 h += output_noise
             h = self.activations[i](h)
-
+        # print(h)
         if self.sample_output:
-            # Ensure that h is normalized 
+            # Ensure that h is normalized
             h = sample(h/np.sum(h))
-
+        else:
+            h = np.argmax(h)
         return h
 
     def set_model_params(self, model_params):
         pointer = 0
-        self.embedding = np.array(model_params[pointer:pointer+(NUM_OBJECTS*self.EMBEDDING_SIZE)]).reshape(NUM_OBJECTS, self.EMBEDDING_SIZE)
-        pointer += (NUM_OBJECTS*self.EMBEDDING_SIZE)
+        self.embedding = np.array(model_params[pointer:pointer+(7*self.EMBEDDING_SIZE)]).reshape(7, self.EMBEDDING_SIZE)
+        pointer += (7*self.EMBEDDING_SIZE)
         for i in range(len(self.shapes)):
             w_shape = self.shapes[i]
             b_shape = self.shapes[i][1]
@@ -168,7 +169,7 @@ class Model:
 
     def get_random_model_params(self, stdev=0.01):
         weights = np.random.randn(self.param_count) * stdev
-        pointer = (NUM_OBJECTS*self.EMBEDDING_SIZE)
+        pointer = (7*self.EMBEDDING_SIZE)
         for i in range(len(self.shapes)):
             w_shape = self.shapes[i]
             b_shape = self.shapes[i][1]
@@ -187,7 +188,7 @@ class Model:
 #         return np.random.randn(self.param_count) * stdev
 
 
-# The obs object put out py minigrid is a dict with image [NUM_OBJECTSxNUM_OBJECTSx3 of ints], direction [1 int], and mission string [string]
+# The obs object put out py minigrid is a dict with image [7x7x3 of ints], direction [1 int], and mission string [string]
 #  This reshapes obs into [image.flatten(), direction]
 def reshape_obs(obs):
     # ret_obs = obs['image'][:,:,0].flatten()/10
@@ -201,7 +202,6 @@ def reshape_obs(obs):
     ret_obs = ret_obs.flatten()
     return np.delete(ret_obs, 4, 0)
 
-
 def simulate(model, seed, train_mode=False, render_mode=render_mode, num_episode=5,
              max_len=-1, env_config_this_sim=None):
     reward_list = []
@@ -213,20 +213,19 @@ def simulate(model, seed, train_mode=False, render_mode=render_mode, num_episode
         if max_len < max_episode_length:
             max_episode_length = max_len
 
-    if (seed >= 0):
-        # logger.info('Setting seed to {}'.format(seed))
-        random.seed(seed)
-        np.random.seed(seed)
-        model.env.seed(seed)
 
-    if env_config_this_sim:
-        model.env.set_env_config(env_config_this_sim)
-
-    for _ in range(num_episode):
+    for episode in range(num_episode):
 
         if model.rnn_mode:
             model.reset()
-
+        # if (seed >= 0):
+        #     # logger.info('Setting seed to {}'.format(seed))
+        #     random.seed(seed)
+        #     np.random.seed(seed)
+        #     model.env.seed(seed)
+        #
+        # if env_config_this_sim:
+        #     model.env.set_env_config(env_config_this_sim)
         obs = model.env.reset()
         obs = reshape_obs(obs)
         if obs is None:
@@ -235,6 +234,9 @@ def simulate(model, seed, train_mode=False, render_mode=render_mode, num_episode
         total_reward = 0.0
         done = False
         t = -1
+        random.seed(seed + episode)
+        np.random.seed(seed + episode)
+
         for t in range(max_episode_length):
             # logger.info(f"Running episode at step {t + 1}")
             if render_mode:

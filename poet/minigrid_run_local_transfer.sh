@@ -33,8 +33,8 @@ python3 -u minigrid_master.py \
   --noise_decay=0.999 \
   --noise_limit=0.01 \
   --repro_threshold 10 \
-  --mc_lower -20 \
-  --mc_upper 95 \
+  --mc_lower 0 \
+  --mc_upper 100 \
   --normalize_grads_by_noise_std \
   --returns_normalization=centered_ranks \
   --stochastic \

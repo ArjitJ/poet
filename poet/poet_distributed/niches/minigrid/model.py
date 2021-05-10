@@ -59,7 +59,7 @@ class Model:
         if game.time_factor > 0:
             self.time_factor = float(game.time_factor)
             self.time_input = 1
-        self.input_size = 9#3#game.input_size
+        self.input_size = 9 #3#game.input_size
         self.output_size = game.output_size
         self.shapes = [(self.input_size + self.time_input, self.layer_1),
                        (self.layer_1, self.layer_2),
