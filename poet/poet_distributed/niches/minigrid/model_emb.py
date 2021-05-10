@@ -60,7 +60,7 @@ class Model:
             self.time_factor = float(game.time_factor)
             self.time_input = 1
         self.EMBEDDING_SIZE = 5
-        self.input_size = 8*self.EMBEDDING_SIZE#3#game.input_size
+        self.input_size = 8*self.EMBEDDING_SIZE + 1 # 3#game.input_size
         self.output_size = game.output_size
         self.shapes = [(self.input_size + self.time_input, self.layer_1),
                        (self.layer_1, self.layer_2),
