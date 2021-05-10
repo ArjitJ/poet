@@ -111,8 +111,10 @@ class Model:
 
     def get_action(self, x, t=0, mean_mode=False):
         # if mean_mode = True, ignore sampling.
-        x = self.embedding[x.astype(int).reshape(-1)].astype(float)
+        dir = x[1]
+        x = self.embedding[x[0].astype(int).reshape(-1)].astype(float)
         h = np.array(x).flatten()
+        h = np.append(h, dir)
         h = 2*h - 1
         if self.time_input == 1:
             time_signal = float(t) / self.time_factor
@@ -199,7 +201,7 @@ def reshape_obs(obs):
     pos_x, pos_y = obs['agent_pos']
     ret_obs = tmp[pos_x-1:pos_x+2, pos_y-1:pos_y+2]
     ret_obs = ret_obs.flatten()
-    return np.delete(ret_obs, 4, 0)
+    return np.delete(ret_obs, 4, 0), obs['direction']/4
 
 
 def simulate(model, seed, train_mode=False, render_mode=render_mode, num_episode=5,
